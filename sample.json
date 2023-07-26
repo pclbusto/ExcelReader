@@ -1,0 +1,22 @@
+{
+    "projectFileVersion": "2023-07-26",
+    "stringIndexType": "Utf16CodeUnit",
+    "metadata": {
+        "projectKind": "CustomMultiLabelClassification",
+        "storageInputContainerName": "example-data",
+        "projectName": "Movies",
+        "multilingual": false,
+        "description": "Project-description",
+        "language": "en",
+        "settings": {}
+    },
+    "assets": {
+        "projectKind": "customMultiLabelClassification",
+        "classes": [
+            {
+                "category": "Mystery"
+            }
+        ]
+    },
+    "documents": []
+}
