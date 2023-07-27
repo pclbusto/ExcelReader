@@ -29,15 +29,36 @@ def create_json_structure():
     }
     return dictionary
 
+def add_file_classifcation(index,clase1, clase2, clase3):
+    def add_file_classes(clase1, clase2, clase3):
+        lista = []
+
+        if clase1 is not None:
+            lista.append({"category": "{}".format(clase1)})
+        if clase2 is not None:
+            lista.append({"category": "{}".format(clase2)})
+        if clase3 is not None:
+            lista.append({"category": "{}".format(clase3)})
+        return lista
+    json_part = {
+        "location": "{}.txt".format(index),
+        "language": "es-es",
+        "classes": []
+      }
+    lista = add_file_classes(clase1, clase2, clase3)
+    json_part["classes"] = lista
+
+    return json_part
+
 def parse_xls(nombre_archivo,dicionario):
     df = pd.read_excel(nombre_archivo)
     for index in df.index:
-        print("{} {}".format(index, df["Razón LTR"][index]))
-        f = open("Archivos entrenamiento\{}.txt".format(index),"w")
-        f.writelines(df["Razón LTR"][index])
-
-        f.close()
-
+        if index == 31:
+            f = open("Archivos entrenamiento/{}.txt".format(index), "w")
+            print(df["Razón LTR"][index])
+            f.writelines(df["Razón LTR"][index])
+            f.close()
+            dicionario["documents"].append(add_file_classifcation(index, df["Nivel 1"][index], df["Nivel 2"][index], df["Nivel 3"][index]))
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -47,10 +68,10 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     dictionary = create_json_structure()
-    parse_xls('Detractores 2018.xlsx',dictionary)
+    parse_xls('Detractores 2018.xlsx', dictionary)
     # dictionary = create_json_structure()
-    # json_object = json.dumps(dictionary, indent=4)
-    # with open("sample.json", "w") as outfile:
-    #     outfile.write(json_object)
+    json_object = json.dumps(dictionary, indent=4)
+    with open("sample.json", "w") as outfile:
+        outfile.write(json_object)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
