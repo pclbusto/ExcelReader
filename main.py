@@ -6,11 +6,11 @@ import datetime
 
 import pandas as pd
 import json
-
+import numpy as np
 
 def create_json_structure():
     dictionary = {
-        "projectFileVersion": "{}".format(datetime.datetime.today().date()),
+        "projectFileVersion": "2022-05-01",
         "stringIndexType": "Utf16CodeUnit",
         "metadata": {
             "projectKind": "CustomMultiLabelClassification",
@@ -23,9 +23,10 @@ def create_json_structure():
         },
         "assets": {
             "projectKind": "customMultiLabelClassification",
-            "classes": []
+            "classes": [],
+            "documents": []
         },
-        "documents": []
+
     }
     return dictionary
 
@@ -46,20 +47,39 @@ def add_file_classifcation(index,clase1, clase2, clase3):
         "classes": []
       }
     lista = add_file_classes(clase1, clase2, clase3)
+
     json_part["classes"] = lista
 
     return json_part
 
 def parse_xls(nombre_archivo,dicionario):
+    conjunto_clases = set()
+    lista_caracteres_reemplazar = [":","$","&","%","*","(",")","+","?","~","#","/","?"]
     df = pd.read_excel(nombre_archivo)
+    df = df.replace(np.nan, None)
     for index in df.index:
-        if index == 31:
+        # if index <=50:
+        lista_clases = [df["Nivel 3"][index]]
+        if lista_clases[0] is not None:
+            # = 'nan' and lista_clases[1] != 'nan' and lista_clases[2] != 'nan'
             f = open("Archivos entrenamiento/{}.txt".format(index), "w")
             print(df["Razón LTR"][index])
             f.writelines(df["Razón LTR"][index])
             f.close()
-            dicionario["documents"].append(add_file_classifcation(index, df["Nivel 1"][index], df["Nivel 2"][index], df["Nivel 3"][index]))
+            print(lista_clases)
+            for i in range(0, len(lista_clases)):
+                for carcater in lista_caracteres_reemplazar:
+                    lista_clases[i] = lista_clases[i].replace(carcater, "-")
+                print(lista_clases[i])
+                lista_clases[i] = lista_clases[i][0:49]
+            print(lista_clases)
 
+            dicionario["assets"]["documents"].append(add_file_classifcation(index, None, None, lista_clases[0]))
+            conjunto_clases.add(lista_clases[0])
+            print("------------------------------------")
+    for elemento in conjunto_clases:
+        print(elemento)
+        dicionario["assets"]["classes"].append({"category": "{}".format(elemento)})
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -69,9 +89,7 @@ def print_hi(name):
 if __name__ == '__main__':
     dictionary = create_json_structure()
     parse_xls('Detractores 2018.xlsx', dictionary)
-    # dictionary = create_json_structure()
-    json_object = json.dumps(dictionary, indent=4)
     with open("sample.json", "w") as outfile:
-        outfile.write(json_object)
+         json.dump(dictionary, indent=4, fp=outfile, ensure_ascii=False)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
